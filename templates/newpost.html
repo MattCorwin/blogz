@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+<!-- This page generates a new blog post, with a title and body-->
+{% block content %}
+<form method="POST">
+    <label for="title">Title:
+        <input type="text" id="title" name="title" value="{{title}}"/>
+    </label>
+    
+    <label for="body">Post:
+        <textarea id="body" name="body">{{body}}</textarea>
+    </label>
+    <input type="submit" value="submit" />
+</form>
+{% with messages = get_flashed_messages(with_categories=True) %}
+    <ul>
+    {% for category, message in messages %}
+        <li class="{{category}}">{{message}}</li>
+    {% endfor %}
+    </ul>
+{% endwith %}
+
+
+
+{% endblock %}
