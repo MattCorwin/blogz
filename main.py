@@ -30,24 +30,38 @@ class User(db.Model):
         self.username = username
         self.password = password
 
-#TODO FINISH THIS, ONLY COPIED IT
+
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register']
-    if request.endpoint not in allowed_routes and 'email' not in session:
+    allowed_routes = ['login', 'signup', 'list_blogs', 'index']
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
 @app.route("/blog")
-def index():
+def list_blogs():
     
     blog_id = request.args.get("id")
+    user_id = request.args.get("user")
+    
     
     if blog_id != None:
         blog_item = Blog.query.filter_by(id=blog_id).first()
-        return render_template("entry.html", page_title=blog_item.title, title=blog_item.title, body=blog_item.body)
+        return render_template("entry.html", blog=blog_item, author=blog_item.owner.username)
+
+    if user_id != None:
+        blogs = Blog.query.filter_by(owner_id=user_id).all()
+        author = User.query.filter_by(id=user_id).first()
+        return render_template('author.html', page_title='Blogs by ' + author.username, blogs=blogs)
 
     posts = Blog.query.all()
-    return render_template("index.html", page_title="Build a blog", posts=posts)
+    return render_template("listblogs.html", page_title="Blogs by all users", posts=posts)
+
+@app.route('/')
+def index():
+        
+    users = User.query.all()
+    return render_template('index.html', page_title='Pick a user to see their blog', users=users  )
+
 
 @app.route("/newpost", methods=['GET', 'POST'])
 def create_new():
@@ -58,7 +72,9 @@ def create_new():
             flash("Please fill in both Title and Post fields", "error")
             return render_template('newpost.html', page_title="Add a blog entry", title=blog_title, body=blog_body)
         #TODO ADD OWNER PARAMETER TO NEW POST CONSTRUCTOR BELOW
-        new_post = Blog(blog_title, blog_body)
+        
+        owner = User.query.filter_by(username=session['username']).first()
+        new_post = Blog(blog_title, blog_body, owner)
         db.session.add(new_post)
         db.session.commit()
         blog_id=new_post.id
@@ -74,7 +90,7 @@ def login():
         password = request.form['password'] 
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
-            session['id'] = user.id
+            session['username'] = user.username
             flash("Logged in")
             return redirect('/newpost')
         elif not user:
