@@ -8,8 +8,8 @@
 {% else %}
     <ul>
     {% for blog in blogs %}
-        <li><a href="/blog?id={{blog.id}}"><h2>{{blog.title}}</h2></a><br>
-            <h3>{{blog.body}}</h3>
+        <li><a href="/blog?id={{blog.id}}"><h3>{{blog.title}}</h3></a><br>
+            {{blog.body}}
         </li>
         <hr>
     {% endfor %}
