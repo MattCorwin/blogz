@@ -47,7 +47,7 @@ def list_blogs():
     
     if blog_id != None:
         blog_item = Blog.query.filter_by(id=blog_id).first()
-        return render_template("entry.html", blog=blog_item, author=blog_item.owner.username)
+        return render_template("entry.html", blog=blog_item, author=blog_item.owner.username, page_title=blog_item.title+' by '+blog_item.owner.username)
 
     if user_id != None:
         blogs = Blog.query.filter_by(owner_id=user_id).all()
